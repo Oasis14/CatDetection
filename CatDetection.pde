@@ -27,6 +27,7 @@ NetAddress dest;
 
 Capture video;
 OpenCV opencv;
+OpenCV eyeDetection;
 
 PFont f;
 
@@ -35,6 +36,7 @@ ArrayList<Face> faceList;
 
 // List of detected faces (every frame)
 Rectangle[] faces;
+Rectangle[] eyes;
 
 // Number of faces detected over all time. Used to set IDs.
 int faceCount = 0;
@@ -57,6 +59,11 @@ void setup() {
   //opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
   opencv.loadCascade("haarcascade_frontalcatface_extended.xml");  
   
+  eyeDetection = new OpenCV(this, width/scl, height/scl);
+  eyeDetection.loadCascade(OpenCV.CASCADE_EYE); 
+  
+  
+  
   
   faceList = new ArrayList<Face>();
   
@@ -78,6 +85,7 @@ void draw() {
   image(video, 0, 0 );
   
   detectFaces();
+  detectEyes ();
 
   //Rectangles:
   if (faces.length >= 1) {
@@ -125,7 +133,8 @@ void detectFaces() {
     // Just make a Face object for every face Rectangle
     for (int i = 0; i < faces.length; i++) {
       println("+++ New face detected with ID: " + faceCount);
-      faceList.add(new Face(faceCount, faces[i].x,faces[i].y,faces[i].width,faces[i].height));
+      Face foundFace = new Face(faceCount, faces[i].x,faces[i].y,faces[i].width,faces[i].height);
+      faceList.add(foundFace);
       faceCount++;
     }
   
@@ -140,7 +149,7 @@ void detectFaces() {
        float record = 50000;
        int index = -1;
        for (int i = 0; i < faces.length; i++) {
-         float d = dist(faces[i].x,faces[i].y,f.r.x,f.r.y);
+         float d = dist(faces[i].x,faces[i].y,f.face.x,f.face.y);
          if (d < record && !used[i]) {
            record = d;
            index = i;
@@ -154,7 +163,10 @@ void detectFaces() {
     for (int i = 0; i < faces.length; i++) {
       if (!used[i]) {
         println("+++ New face detected with ID: " + faceCount);
-        faceList.add(new Face(faceCount, faces[i].x,faces[i].y,faces[i].width,faces[i].height));
+        Face foundFace = new Face(faceCount, faces[i].x,faces[i].y,faces[i].width,faces[i].height);
+        //find eyes
+        
+        faceList.add(foundFace);
         faceCount++;
       }
     }
@@ -174,7 +186,7 @@ void detectFaces() {
        int index = -1;
        for (int j = 0; j < faceList.size(); j++) {
          Face f = faceList.get(j);
-         float d = dist(faces[i].x,faces[i].y,f.r.x,f.r.y);
+         float d = dist(faces[i].x,faces[i].y,f.face.x,f.face.y);
          if (d < record && f.available) {
            record = d;
            index = j;
@@ -216,6 +228,25 @@ void sendOsc() {
   msg.add((float)y);
   msg.add((float)w);
   oscP5.send(msg, dest);
+}
+
+void detectEyes(){
+ 
+  
+  eyeDetection.loadImage(video);
+  for (int i = faceList.size()-1; i >= 0; i--) {
+    //Face f = faceList.get(i);
+    //eyeDetection.useGray();
+    eyes = eyeDetection.detect();
+    println("Number of eyes: " + eyes.length);
+  }
+  
+  
+  
+  
+  
+  
+  
 }
 
 void drawFace() {

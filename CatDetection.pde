@@ -22,6 +22,12 @@ import java.awt.*;
 import oscP5.*;
 import netP5.*;
 
+
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.CvType;
+import org.opencv.core.Scalar;
+
 OscP5 oscP5;
 NetAddress dest;
 
@@ -59,8 +65,8 @@ void setup() {
   //opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
   opencv.loadCascade("haarcascade_frontalcatface_extended.xml");  
   
-  eyeDetection = new OpenCV(this, width/scl, height/scl);
-  eyeDetection.loadCascade(OpenCV.CASCADE_EYE); 
+  //eyeDetection = new OpenCV(this, width/scl, height/scl);
+  //eyeDetection.loadCascade(OpenCV.CASCADE_EYE); 
   
   
   
@@ -80,25 +86,38 @@ void setup() {
 
 void draw() {
   scale(scl);
-  opencv.loadImage(video);
 
   image(video, 0, 0 );
+  opencv.loadImage(video);
+
+
+  
+  
+  
+  
   
   detectFaces();
   detectEyes ();
 
   //Rectangles:
-  if (faces.length >= 1) {
+  if (faceList.size() >= 1) {
     countWithout = 0;
     
     noFill();
     strokeWeight(5);
     stroke(255,0,0);
-    //rect(faces[0].x, faces[0].y, faces[0].width, faces[0].height); //if you want the rectangle
-    x = faces[0].x;
-    y = faces[0].y;
-    w = faces[0].width;
-    drawFace();
+    Face f = faceList.get(0);
+    rect(f.face.x, f.face.y, f.face.width, f.face.height); //if you want the rectangle
+    for(int e = 0; e < f.eyes.length; e ++){
+      if(f.eyes[e] != null){
+        rect(f.face.x + f.eyes[e].x, f.face.y + f.eyes[e].y, f.eyes[e].width, f.eyes[e].height);
+      }
+    }
+    //draw eyes
+    x = f.face.x;
+    y = f.face.y;
+    w = f.face.width;
+    //drawFace();
       
   } else if (countWithout > countWithoutMax) {
     x = 0;
@@ -231,22 +250,19 @@ void sendOsc() {
 }
 
 void detectEyes(){
- 
-  
-  eyeDetection.loadImage(video);
   for (int i = faceList.size()-1; i >= 0; i--) {
-    //Face f = faceList.get(i);
-    //eyeDetection.useGray();
+    
+    Face f = faceList.get(i);
+    PImage faceImage = video.get(f.face.x, f.face.y, f.face.width, f.face.height);
+    eyeDetection = new OpenCV(this, f.face.width, f.face.height);
+    eyeDetection.loadCascade(OpenCV.CASCADE_EYE); 
+    eyeDetection.loadImage(faceImage);
     eyes = eyeDetection.detect();
-    println("Number of eyes: " + eyes.length);
+    for(int e = 0; e < eyes.length; e++){
+      f.addEyes(eyes[e]);
+    }
   }
-  
-  
-  
-  
-  
-  
-  
+ 
 }
 
 void drawFace() {

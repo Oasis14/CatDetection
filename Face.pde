@@ -11,7 +11,7 @@ class Face {
   
   // A Rectangle
   Rectangle face;
-  Rectangle eyes;
+  Rectangle[] eyes = new Rectangle[2];
   
   // Am I available to be matched?
   boolean available;
@@ -24,6 +24,7 @@ class Face {
   
   // Assign a number to each face
   int id;
+  int eyeCount;
   
   // Make me
   Face(int newID, int x, int y, int w, int h) {
@@ -62,7 +63,14 @@ class Face {
     return false;
   }
   
-  void addEyes(){
-    
+  void addEyes(Rectangle eye){
+    if(eyeCount < 2){
+      eyes[eyeCount] = eye;
+      eyeCount ++;
+    } else {
+      eyeCount = 0;
+      eyes[eyeCount] = eye;
+      eyeCount ++;
+    }
   }
 }

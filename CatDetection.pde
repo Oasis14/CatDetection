@@ -97,8 +97,8 @@ void setup() {
   catPImage = new PImage[displaySize];
   //load cat Pimages to array
   for (int i = 0; i < catImgFileName.length; i ++){
-   println(sketchPath() + "/pictures/" + catImgFileName[i]);
-   catPImage[i] = loadImage( sketchPath() + "/pictures/" + catImgFileName[i]); 
+   println(sketchPath() + "/Outputimg/images/" + catImgFileName[i]);
+   catPImage[i] = loadImage( sketchPath() + "/Outputimg/images/" + catImgFileName[i]); 
    catPImage[i].resize(width/scl, height/scl);
   }
 }

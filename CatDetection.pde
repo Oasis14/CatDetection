@@ -58,6 +58,11 @@ int x = 0;
 int y = 0; 
 int w = 0;
 
+//training 
+boolean train = false;
+String[] catImgFileName;
+PImage[] catPImage = new PImage[9];
+
 void setup() {
   size(640, 480);
   video = new Capture(this, width/scl, height/scl);
@@ -82,20 +87,63 @@ void setup() {
   oscP5 = new OscP5(this,9000);
   dest = new NetAddress("10.201.27.233",8000);
   frameRate(90);
+  
+
+  File folder = new File(sketchPath() + "/pictures");
+  catImgFileName = folder.list();
+  
+  //load cat Pimages to array
+  for (int i = 0; i < catImgFileName.length; i ++){
+   println(sketchPath() + "/pictures/" + catImgFileName[i]);
+   catPImage[i] = loadImage( sketchPath() + "/pictures/" + catImgFileName[i]); 
+   catPImage[i].resize(width/scl, height/scl);
+  }
 }
 
+
+
+int display;
+
 void draw() {
+  
+  //check if training key is pressed
+  if (keyPressed) {
+    if (key == 't' || key == 'T') {
+      train = !train;
+      println(train);
+    }
+    
+    if(key == 'd' || key == 'D'){
+      
+      display ++;
+    }
+    
+    if(key == 'a' || key == 'A'){
+     display --; 
+    }
+  }
+  //make sure display doesnt get out of index. 
+  //Probably not the best way to deal with this as its static 
+  if(display > 8){
+   display = 0; 
+  }
+  if(display < 0){
+    display = 8;
+  }
+  
   scale(scl);
-
-  image(video, 0, 0 );
-  opencv.loadImage(video);
-
-
   
+  if(train){
+   //be able to get all pictures for training data set 
+   image(catPImage[display],0,0);
+   opencv.loadImage(catPImage[display]);
+  } else {
+    //Use live data 
+    image(video, 0, 0 );
+    opencv.loadImage(video);
+  }
   
-  
-  
-  
+  //Done regardless of training or running
   detectFaces();
   detectEyes ();
 
@@ -253,9 +301,14 @@ void detectEyes(){
   for (int i = faceList.size()-1; i >= 0; i--) {
     
     Face f = faceList.get(i);
-    PImage faceImage = video.get(f.face.x, f.face.y, f.face.width, f.face.height);
+    PImage faceImage;
+    if(train){
+      faceImage = catPImage[display].get(f.face.x, f.face.y, f.face.width, f.face.height); 
+    }else{
+      faceImage = video.get(f.face.x, f.face.y, f.face.width, f.face.height);
+    }
     eyeDetection = new OpenCV(this, f.face.width, f.face.height);
-    eyeDetection.loadCascade(OpenCV.CASCADE_EYE); 
+    eyeDetection.loadCascade(OpenCV.CASCADE_EYE);  
     eyeDetection.loadImage(faceImage);
     eyes = eyeDetection.detect();
     for(int e = 0; e < eyes.length; e++){

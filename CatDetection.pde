@@ -91,7 +91,7 @@ void setup() {
   frameRate(90);
   
 
-  File folder = new File(sketchPath() + "/pictures");
+  File folder = new File(sketchPath() + "/Outputimg/images/");
   catImgFileName = folder.list();
   displaySize = catImgFileName.length;
   catPImage = new PImage[displaySize];

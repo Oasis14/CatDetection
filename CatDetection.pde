@@ -96,6 +96,7 @@ void setup() {
   for (int i = 0; i < catImgFileName.length; i ++){
    println(sketchPath() + "/pictures/" + catImgFileName[i]);
    catPImage[i] = loadImage( sketchPath() + "/pictures/" + catImgFileName[i]); 
+   catPImage[i].resize(width/scl, height/scl);
   }
 }
 
@@ -300,9 +301,14 @@ void detectEyes(){
   for (int i = faceList.size()-1; i >= 0; i--) {
     
     Face f = faceList.get(i);
-    PImage faceImage = video.get(f.face.x, f.face.y, f.face.width, f.face.height);
+    PImage faceImage;
+    if(train){
+      faceImage = catPImage[display].get(f.face.x, f.face.y, f.face.width, f.face.height); 
+    }else{
+      faceImage = video.get(f.face.x, f.face.y, f.face.width, f.face.height);
+    }
     eyeDetection = new OpenCV(this, f.face.width, f.face.height);
-    eyeDetection.loadCascade(OpenCV.CASCADE_EYE); 
+    eyeDetection.loadCascade(OpenCV.CASCADE_EYE);  
     eyeDetection.loadImage(faceImage);
     eyes = eyeDetection.detect();
     for(int e = 0; e < eyes.length; e++){

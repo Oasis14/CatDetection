@@ -10,12 +10,14 @@ PImage img;
 int imgName;
 void setup() {
   oscP5 = new OscP5(this,12000);
-  size(640, 600); 
+  size(640, 640); 
 }
 
 void draw() {
+  //sketchpath() if it doesnt work
+  String dir= "/images/";
   String filext= ".png";
-  img = loadImage(imgName+filext);
+  img = loadImage(sketchPath()+dir+imgName+filext);
   img.resize(640,0);
   image(img, 0, 0);
 }

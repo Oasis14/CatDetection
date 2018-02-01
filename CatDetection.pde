@@ -57,11 +57,13 @@ int countWithoutMax = 10;
 int x = 0; 
 int y = 0; 
 int w = 0;
+float r = 0;
 
 //training 
 boolean train = false;
 String[] catImgFileName;
 PImage[] catPImage = new PImage[9];
+int display, displaySize;
 
 void setup() {
   size(640, 480);
@@ -91,7 +93,8 @@ void setup() {
 
   File folder = new File(sketchPath() + "/pictures");
   catImgFileName = folder.list();
-  
+  displaySize = catImgFileName.length;
+  catPImage = new PImage[displaySize];
   //load cat Pimages to array
   for (int i = 0; i < catImgFileName.length; i ++){
    println(sketchPath() + "/pictures/" + catImgFileName[i]);
@@ -102,7 +105,7 @@ void setup() {
 
 
 
-int display;
+
 
 void draw() {
   
@@ -122,13 +125,13 @@ void draw() {
      display --; 
     }
   }
-  //make sure display doesnt get out of index. 
-  //Probably not the best way to deal with this as its static 
-  if(display > 8){
+
+
+  if(display > displaySize - 1){
    display = 0; 
   }
   if(display < 0){
-    display = 8;
+    display = displaySize - 1;
   }
   
   scale(scl);
@@ -165,23 +168,31 @@ void draw() {
     x = f.face.x;
     y = f.face.y;
     w = f.face.width;
+    for(int i = 0; i < f.eyes.length; i++){
+      if(f.eyes[i] != null){
+        r = f.face.width / f.eyes[i].width ;
+      }
+    }
     //drawFace();
       
   } else if (countWithout > countWithoutMax) {
     x = 0;
     y = 0;
     w = 0;
+    r = 0;
     drawFace();
   } else {
     countWithout++;
   }
+  
+  
   
   //Send the OSC message with face current position
   sendOsc();
   
   fill(255);
   text("Continuously sends 3 inputs to Wekinator\nUsing message /wek/inputs, to port 6448", 10, 10);
-  text("Face x=" + x + ", y=" + y + ", width=" + w, 10, 40);
+  text("Face x=" + x + ", y=" + y + ", width=" + w +", ratio= " + r, 10, 40);
   fill(255,0,0);
   text("Hint: remove glasses, don't tilt your head", 10, 55);
 }
@@ -294,6 +305,7 @@ void sendOsc() {
   msg.add((float)x); 
   msg.add((float)y);
   msg.add((float)w);
+  msg.add((float)r);
   oscP5.send(msg, dest);
 }
 

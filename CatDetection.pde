@@ -69,8 +69,8 @@ void setup() {
   size(640, 480);
   video = new Capture(this, width/scl, height/scl);
   opencv = new OpenCV(this, width/scl, height/scl);
-  //opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
-  opencv.loadCascade("haarcascade_frontalcatface_extended.xml");  
+  opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
+  //opencv.loadCascade("haarcascade_frontalcatface_extended.xml");  
   
   //eyeDetection = new OpenCV(this, width/scl, height/scl);
   //eyeDetection.loadCascade(OpenCV.CASCADE_EYE); 
@@ -88,6 +88,7 @@ void setup() {
   /* start oscP5, listening for incoming messages at port 12000 */
   oscP5 = new OscP5(this,9000);
   dest = new NetAddress("127.0.0.1",6448);
+  //dest = new NetAddress("10.234.8.149",6448);
   frameRate(90);
   
 
@@ -191,7 +192,7 @@ void draw() {
   sendOsc();
   
   fill(255);
-  text("Continuously sends 3 inputs to Wekinator\nUsing message /wek/inputs, to port 6448", 10, 10);
+  text("Continuously sends 4 inputs to Wekinator\nUsing message /wek/inputs, to port 6448", 10, 10);
   text("Face x=" + x + ", y=" + y + ", width=" + w +", ratio= " + r, 10, 40);
   fill(255,0,0);
   text("Hint: remove glasses, don't tilt your head", 10, 55);
